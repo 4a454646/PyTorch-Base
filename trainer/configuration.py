@@ -40,13 +40,11 @@ class DataloaderConfig:
 
 @dataclass
 class OptimizerConfig:
-    learning_rate: float = 0.001  # determines the speed of network's weights update
-    momentum: float = 0.9  # used to improve vanilla SGD algorithm and provide better handling of local minimas
-    weight_decay: float = 0.0001  # amount of additional regularization on the weights values
-    lr_step_milestones: Iterable = (
-        30, 40
-    )  # at which epoches should we make a "step" in learning rate (i.e. decrease it in some manner)
-    lr_gamma: float = 0.1  # multiplier applied to current learning rate at each of lr_ctep_milestones
+    learning_rate: float = 0.005
+    momentum: float = 0.95
+    weight_decay: float = 0.0001
+    lr_step_milestones: Iterable = (30, 40)
+    lr_gamma: float = 0.1
 
 
 # ## <font style="color:green">Training Configuration</font>

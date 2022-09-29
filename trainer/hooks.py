@@ -101,7 +101,7 @@ def train_hook_default(
         loss.backward()
         optimizer.step()
         loss_avg.update(loss.item())
-        status = "{0}[Train][{1}] Loss_avg: {2:.5}, Loss: {3:.5}, LR: {4:.5}".format(
+        status = "{0}[Train] \x1b[6;30;42mloss:\x1b[0m {2:.3f} \x1b[6;30;42mLR:\x1b[0m   {4:.3f}".format(
             prefix, i, loss_avg.avg, loss_avg.val, optimizer.param_groups[0]["lr"]
         )
         iterator.set_description(status)
@@ -183,9 +183,9 @@ def test_hook_default(
         loss_avg.update(loss.item())
         predict = predict.softmax(dim=1).detach()
         metric_fn.update_value(predict, targets)
-        status = "{0}[Test][{1}] Loss_avg: {2:.5}".format(prefix, i, loss_avg.avg)
+        status = "{0}[Test ] \x1b[6;30;44mloss:\x1b[0m {2:.3f}".format(prefix, i, loss_avg.avg)
         if get_key_metric is not None:
-            status = status + ", Metric_avg: {0:.5}".format(get_key_metric(metric_fn.get_metric_value()))
+            status = status + " \x1b[6;30;44mAcc:\x1b[0m {0:.3f}".format(get_key_metric(metric_fn.get_metric_value()))
         iterator.set_description(status)
     output = {"metric": metric_fn.get_metric_value(), "loss": loss_avg.avg}
     return output
@@ -222,7 +222,7 @@ def end_epoch_hook_classification(iterator, epoch, output_train, output_test):
     """
     if hasattr(iterator, "set_description"):
         iterator.set_description(
-            "epoch: {0}, test_top1: {1:.5}, train_loss: {2:.5}, test_loss: {3:.5}".format(
+            "\x1b[6;30;45mtest_top1:\x1b[0m {1:.3f} \x1b[6;30;45mtrain_loss:\x1b[0m {2:.3f} \x1b[6;30;45mtest_loss:\x1b[0m {3:.3f} ".format(
                 epoch, output_test["metric"]["top1"], output_train["loss"], output_test["loss"]
             )
         )
