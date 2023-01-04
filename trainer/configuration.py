@@ -32,8 +32,8 @@ class DatasetConfig:
 
 @dataclass
 class DataloaderConfig:
-    batch_size: int = 250  # amount of data to pass through the network at each forward-backward iteration
-    num_workers: int = 5  # number of concurrent processes using to prepare data
+    batch_size: int = 256  # amount of data to pass through the network at each forward-backward iteration
+    num_workers: int = 8  # number of concurrent processes using to prepare data
 
 
 # ## <font style="color:green">Optimizer Configuration</font>

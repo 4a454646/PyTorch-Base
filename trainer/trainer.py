@@ -19,86 +19,11 @@ from operator import itemgetter
 
 import torch
 
-from tqdm.auto import tqdm
+from tqdm import tqdm
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from .hooks import test_hook_default, train_hook_default
 from .visualizer import Visualizer
-
-
-# ## <font style="color:blue">Trainer Class Methods and its Parameters</font>
-#
-# ### <font style="color:green">  \_\_init\_\_ </font>
-#
-# Setting different attributes.
-#
-# **Parameters:**
-#
-# - `model` : `nn.Module` - torch model to train
-#
-#         
-# - `loader_train` : `torch.utils.DataLoader` - train dataset loader.
-#
-#     
-# - `loader_test` : `torch.utils.DataLoader` - test dataset loader
-#
-#        
-# - `loss_fn` : `callable` - loss function. In the main function, the cross-entropy loss was being used; here, we can pass the loss we want to use. For example, if we are solving a regression problem, we can not use cross-entropy loss. It is better to use RMS-loss.
-#
-#
-#         
-# - `metric_fn` : `callable` - evaluation metric function. In the main function, we had loss and accuracy as our evaluation metric. Here we can pass any evaluation metric. For example, in a detection problem, we need a precision-recall metric instead of accuracy.
-#
-#         
-# - `optimizer` : `torch.optim.Optimizer` - Optimizer.
-#
-#         
-# - `lr_scheduler` : `torch.optim.LrScheduler` - Learning Rate scheduler.
-#
-#         
-# - `configuration` : `TrainerConfiguration` - a set of training process parameters.
-#
-# Here, we need a data iterator and target iterator separately, because we are writing a general trainer class. For example, for the detection problem for a single image, we might have `n`-number of objects and their coordinates. 
-#
-#         
-# - `data_getter` : `Callable` - function object to extract input data from the sample prepared by dataloader.
-#
-#         
-# - `target_getter` : `Callable` - function object to extract target data from the sample prepared by dataloader.
-#
-#         
-# - `visualizer` : `Visualizer` - optional, shows metrics values (various backends are possible). We can pass the visualizer of our choice. For example, Matplotlib based visualizer, TensorBoard based, etc.
-#
-# It is also calling its method `_register_default_hooks` what this method does we will see next. In short, this is making sure that training and validation function is registered at the time of trainer class object initiation. 
-#
-#
-# ### <font style="color:green"> _register_default_hooks </font>
-#
-# It is calling the another method `register_hook` to register training (`train_hook_default`) and validation (`test_hook_default`) functions. `train_hook_default` and `test_hook_default` are defined in the `hook`-module.  We will go in details in the module.
-#
-#
-# ### <font style="color:green"> register_hook </font>
-#
-# It is updating the key-value pair of a dictionary, where the key is string and value is a callable function.
-#
-# **Parameters:**
-#
-# - `hook_type`: `string` - hook type. For example, wether the function will be used for train or test.
-#
-#
-# - `hook_fn`: `callable` - hook function.
-#
-#
-#
-#
-# ### <font style="color:green"> fit </font>
-#
-# Taking the number of epochs and training and validating the model. It is also adding logs to the visualizer. 
-#
-# **Parameters:**
-#
-# - `epochs`: `int` - number of epochs to train model.
-#
 
 class Trainer:  # pylint: disable=too-many-instance-attributes
     """ Generic class for training loop.
@@ -173,7 +98,7 @@ class Trainer:  # pylint: disable=too-many-instance-attributes
         Arguments:
             epochs (int): number of epochs to train model.
         """
-        iterator = tqdm(range(epochs), dynamic_ncols=True)
+        iterator = tqdm(range(1, epochs+1), dynamic_ncols=True)
         for epoch in iterator:
             output_train = self.hooks["train"](
                 self.model,
@@ -201,7 +126,8 @@ class Trainer:  # pylint: disable=too-many-instance-attributes
             if self.visualizer:
                 self.visualizer.update_charts(
                     None, output_train['loss'], output_test['metric'], output_test['loss'],
-                    self.optimizer.param_groups[0]['lr'], epoch
+                    self.optimizer.param_groups[0]['lr'], epoch,
+                    self.model, self.loader_train
                 )
 
             self.metrics['epoch'].append(epoch)
