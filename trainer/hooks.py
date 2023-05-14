@@ -1,18 +1,3 @@
-# # <font style="color:blue">Hooks for Trainer Class</font>
-#
-# This module implements several hooks (helper functions) for the Trainer class. 
-#
-# This module has the following method implemented:
-#
-# - `train_hook_default`
-#
-#
-# - `test_hook_default`
-#
-#
-# - `end_epoch_hook_classification`
-#
-
 """Implementation of several hooks that used in a Trainer class."""
 from operator import itemgetter
 
@@ -22,42 +7,6 @@ from tqdm import tqdm
 
 from .utils import AverageMeter
 
-
-# ## <font style="color:green">train_hook_default</font>
-#
-# Default train loop function for single epoch. 
-#
-# **Parameters:**
-#
-# - `model` (`nn.Module`): torch model which will be train.
-#
-#
-# - `loader` (`torch.utils.DataLoader`): dataset loader.
-#
-#
-# - `loss_fn` (`callable`): loss function.
-#
-#
-# - `optimizer` (`torch.optim.Optimizer`): Optimizer.
-#
-#
-# - `device` (`str`): Specifies device at which samples will be uploaded.
-#
-#
-# - `data_getter` (`Callable`): function object to extract input data from the sample prepared by dataloader.
-#
-#
-# - `target_getter` (`Callable`): function object to extract target data from the sample prepared by dataloader.
-#
-#
-# - `iterator_type` (`iterator`): type of the iterator. e.g. tqdm
-#
-#
-# - `prefix` (`string`): prefix which will be add to the description string of progress bar.
-#
-#
-# - `stage_progress` (`bool`): if True then progress bar will be show.
-#
 
 def train_hook_default(
     model,
@@ -95,48 +44,23 @@ def train_hook_default(
     for i, sample in enumerate(iterator):
         optimizer.zero_grad()
         inputs = data_getter(sample).to(device)
+        # print(inputs.min(), inputs.max())
+        # print(inputs.shape)
+        # print(inputs)
         targets = target_getter(sample).to(device)
+        # print(targets)
         predicts = model(inputs)
+        # print("predictions")
+        # print(predicts)
         loss = loss_fn(predicts, targets)
         loss.backward()
         optimizer.step()
         loss_avg.update(loss.item())
-        status = "{0}[Train] \x1b[6;30;42mloss:\x1b[0m {2:.3f} \x1b[6;30;42mLR:\x1b[0m   {4:.3f}".format(
+        status = "{0}[Train] Loss: {2:.3f} LR:  {4:.5f}".format(
             prefix, i, loss_avg.avg, loss_avg.val, optimizer.param_groups[0]["lr"]
         )
         iterator.set_description(status)
     return {"loss": loss_avg.avg}
-
-
-# ## <font style="color:green">test_hook_default</font>
-#
-# Default test loop function for single epoch. 
-#
-# **Parameters:**
-#
-# - `model` (`nn.Module`): torch model which will be train.
-#
-#
-# - `loader` (`torch.utils.DataLoader`): dataset loader.
-#
-#
-# - `device` (`str`): Specifies device at which samples will be uploaded.
-#
-#
-# - `data_getter` (`Callable`): function object to extract input data from the sample prepared by dataloader.
-#
-#
-# - `target_getter` (`Callable`): function object to extract target data from the sample prepared by dataloader.
-#
-#
-# - `iterator_type` (`iterator`): type of the iterator. e.g. tqdm
-#
-#
-# - `prefix` (`string`): prefix which will be add to the description string of progress bar.
-#
-#
-# - `stage_progress` (`bool`): if True then progress bar will be show.
-#
 
 def test_hook_default(
     model,
@@ -183,33 +107,13 @@ def test_hook_default(
         loss_avg.update(loss.item())
         predict = predict.softmax(dim=1).detach()
         metric_fn.update_value(predict, targets)
-        status = "{0}[Test ] \x1b[6;30;44mloss:\x1b[0m {2:.3f}".format(prefix, i, loss_avg.avg)
+        status = "{0}[Test ] Loss: {2:.3f}".format(prefix, i, loss_avg.avg)
         if get_key_metric is not None:
-            status = status + " \x1b[6;30;44mAcc:\x1b[0m {0:.3f}".format(get_key_metric(metric_fn.get_metric_value()))
+            status = status + " Acc: {0:.3f}".format(get_key_metric(metric_fn.get_metric_value()))
         iterator.set_description(status)
     output = {"metric": metric_fn.get_metric_value(), "loss": loss_avg.avg}
     return output
 
-
-# ## <font style="color:green">end_epoch_hook_classification</font>
-#
-# To show end epoch progress bar.
-#
-# **Parameters:**
-#
-# - `iterator` (`iter`): iterator.
-#
-#
-# - `epoch` (`int`): number of epoch to store.
-#
-#
-# - `output_train` (`dict`): description of the train stage.
-#
-#
-# - `output_test` (`dict`): description of the test stage.
-#
-#
-# - `trainer` (`Trainer`): trainer object.
 
 def end_epoch_hook_classification(iterator, epoch, output_train, output_test):
     """ Default end_epoch_hook for classification tasks.
@@ -222,7 +126,7 @@ def end_epoch_hook_classification(iterator, epoch, output_train, output_test):
     """
     if hasattr(iterator, "set_description"):
         iterator.set_description(
-            "\x1b[6;30;45mtest_top1:\x1b[0m {1:.3f} \x1b[6;30;45mtrain_loss:\x1b[0m {2:.3f} \x1b[6;30;45mtest_loss:\x1b[0m {3:.3f} ".format(
+            "test_top1: {1:.3f} train_loss: {2:.3f} test_loss: {3:.3f} ".format(
                 epoch, output_test["metric"]["top1"], output_train["loss"], output_test["loss"]
             )
         )

@@ -22,7 +22,7 @@ import torch
 from tqdm import tqdm
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from .hooks import test_hook_default, train_hook_default
+from .hooks import test_hook_default, train_hook_default, end_epoch_hook_classification
 from .visualizer import Visualizer
 
 class Trainer:  # pylint: disable=too-many-instance-attributes
@@ -98,8 +98,9 @@ class Trainer:  # pylint: disable=too-many-instance-attributes
         Arguments:
             epochs (int): number of epochs to train model.
         """
-        iterator = tqdm(range(1, epochs+1), dynamic_ncols=True)
-        for epoch in iterator:
+        best_loss = float("inf")
+        # iterator = tqdm(range(1, epochs+1), dynamic_ncols=True)
+        for epoch in range(1, epochs+1):
             output_train = self.hooks["train"](
                 self.model,
                 self.loader_train,
@@ -141,8 +142,8 @@ class Trainer:  # pylint: disable=too-many-instance-attributes
                 else:
                     self.lr_scheduler.step()
 
-            if self.hooks["end_epoch"] is not None:
-                self.hooks["end_epoch"](iterator, epoch, output_train, output_test)
+            # if self.hooks["end_epoch"] is not None:
+            #     self.hooks["end_epoch"](iterator, epoch, output_train, output_test)
 
             if (epoch + 1) % self.model_saving_frequency == 0:
                 os.makedirs(self.save_dir, exist_ok=True)
@@ -150,6 +151,13 @@ class Trainer:  # pylint: disable=too-many-instance-attributes
                     self.model.state_dict(),
                     os.path.join(self.save_dir, self.model_name_prefix) + str(datetime.datetime.now())
                 )
+            if output_test['loss'] < best_loss:
+                best_loss = output_test['loss']
+                torch.save(
+                    self.model.state_dict(),
+                    os.path.join(self.save_dir, self.model_name_prefix) + '_best'
+                )
+
         return self.metrics
 
     def register_hook(self, hook_type, hook_fn):

@@ -32,18 +32,18 @@ class DatasetConfig:
 
 @dataclass
 class DataloaderConfig:
-    batch_size: int = 256  # amount of data to pass through the network at each forward-backward iteration
-    num_workers: int = 8  # number of concurrent processes using to prepare data
+    batch_size: int = 256
+    num_workers: int = 8
 
 
 # ## <font style="color:green">Optimizer Configuration</font>
 
 @dataclass
 class OptimizerConfig:
-    learning_rate: float = 0.005
+    learning_rate: float = 0.01
     momentum: float = 0.95
     weight_decay: float = 0.0001
-    lr_step_milestones: Iterable = (30, 40)
+    lr_step_milestones: Iterable = (100,200,300,400,500)
     lr_gamma: float = 0.1
 
 
@@ -52,7 +52,7 @@ class OptimizerConfig:
 @dataclass
 class TrainerConfig:
     model_dir: str = "checkpoints"  # directory to save model states
-    model_saving_frequency: int = 1  # frequency of model state savings per epochs
+    model_saving_frequency: int = 50  # frequency of model state savings per epochs
     device: str = "cpu"  # device to use for training.
-    epoch_num: int = 50  # number of times the whole dataset will be passed through the network
+    epoch_num: int = 600  # number of times the whole dataset will be passed through the network
     progress_bar: bool = True  # enable progress bar visualization during train process

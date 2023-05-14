@@ -34,22 +34,16 @@ class TensorBoardVisualizer(Visualizer):
 
         # constant for classes
         classes = (
-            'T-shirt/top',
-            'Trouser',
-            'Pullover',
-            'Dress',
-            'Coat',
-            'Sandal',
-            'Shirt',
-            'Sneaker',
-            'Bag',
-            'Ankle Boot'
+            0,
+            30,
+            60,
+            90,
         )
 
         # Build confusion matrix
-        cf_matrix = confusion_matrix(y_true, y_pred)
+        cf_matrix = confusion_matrix(y_true, y_pred, normalize='true')
         df_cm = pd.DataFrame(
-            cf_matrix/np.sum(cf_matrix) * 10, index=[i for i in classes],
+            cf_matrix, index=[i for i in classes],
             columns=[i for i in classes]
         )
         plt.figure(figsize=(12, 7))
