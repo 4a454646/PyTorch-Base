@@ -53,6 +53,6 @@ class OptimizerConfig:
 class TrainerConfig:
     model_dir: str = "checkpoints"  # directory to save model states
     model_saving_frequency: int = 50  # frequency of model state savings per epochs
-    device: str = "cpu"  # device to use for training.
+    device: str = "gpu"  # device to use for training.
     epoch_num: int = 600  # number of times the whole dataset will be passed through the network
     progress_bar: bool = True  # enable progress bar visualization during train process
