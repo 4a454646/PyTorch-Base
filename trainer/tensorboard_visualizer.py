@@ -36,7 +36,7 @@ class TensorBoardVisualizer(Visualizer):
         classes = (
             0,
             30,
-            60,
+            60, 
             90,
         )
 

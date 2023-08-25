@@ -44,9 +44,9 @@ def get_data(batch_size, data_root, num_workers):
         transforms.ToTensor(),
         transforms.Normalize((0.4450, ), (0.3000, )),
         transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),
-        transforms.RandomAffine(degrees=5, translate=(0.15, 0.15), scale=(0.85, 1.15), shear=15, resample=False, fillcolor=0),
+        transforms.RandomAffine(degrees=5, translate=(0.15, 0.15), scale=(0.85, 1.15), shear=15, fill=0),
         transforms.RandomCrop(60, padding=4, pad_if_needed=True, fill=0, padding_mode='constant'),
-        transforms.Resize((64, 64)),
+        transforms.Resize((64, 64), antialias=True),
     ])
 
     dataset = FaceDataset(csv_file='./face.csv', root_dir='./data/', transform=universal_transforms)

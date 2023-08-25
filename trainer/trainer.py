@@ -64,7 +64,7 @@ class Trainer:  # pylint: disable=too-many-instance-attributes
         lr_scheduler: Callable,
         device: Union[torch.device, str] = "cuda",
         model_saving_frequency: int = 1,
-        save_dir: Union[str, Path] = "checkpoints",
+        save_dir: Union[str, Path] = "./checkpoints",
         model_name_prefix: str = "model",
         data_getter: Callable = itemgetter("image"),
         target_getter: Callable = itemgetter("target"),
